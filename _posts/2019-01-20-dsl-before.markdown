@@ -135,6 +135,8 @@ object for testing.
 I'm going to publish "after" part of the story next week, so you'll be able to compare this approach with kotlin DSL that we eventually 
 introduced and see how much visual and easy to write and read it is. 
 
+You can read the second part [here](https://medvector.github.io/programming/dsl-after/)
+
 
 
 
