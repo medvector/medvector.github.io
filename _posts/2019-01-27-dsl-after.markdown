@@ -1,0 +1,190 @@
+---
+layout: single
+title:  "DSL for tests: after"
+date:   2019-01-27
+categories: programming
+---
+In the [first part](https://medvector.github.io/programming/dsl-before/) of this story I explained a little bit what our
+project is about and how our tests used to look before Kotlin DSL was introduced.
+
+### DSL example
+Let's say we use <code>StringBuilder</code> in our code really often. And at one point we realize that our pieces of code
+look very similar. So we decide to extract this code to a function:
+
+{% highlight kotlin %}
+fun buildString(buildAction: (StringBuilder) -> Unit): String {
+  val stringBuilder = StringBuilder()
+  buildAction(stringBuilder)
+  return stringBuilder.toString()
+}
+{% endhighlight %}
+
+How do we use this function? 
+
+{% highlight kotlin %}
+buildString {  builder ->
+  builder.append(1)
+  builder.append(2)
+}
+{% endhighlight %}
+
+Writing <code>builder</code> every time inside lambda's body gets really annoying, so we decide to use Kotlin's fancy feature - 
+[functions with receiver](https://kotlinlang.org/docs/reference/lambdas.html#function-literals-with-receiver).
+
+
+This concept is related to [extension functions](https://kotlinlang.org/docs/reference/extensions.html#extensions).
+Sometimes you need to add a new method to a class that you can't or don't want to modify. 
+
+{% highlight kotlin %}
+  class MyClass {
+    fun foo(bar: Int) { ... }
+    var value: Int
+  }
+{% endhighlight %}
+
+In Java you create a class called something like <code>MyClassUtils</code> and add a <code>public static</code> function there that receives
+an instance of your class as its parameter. In Kotlin there is an easier way:
+{% highlight kotlin %}
+  fun MyClass.newFunction() {
+   this.foo(2)
+   println(this.value + 1) 
+  }
+  
+  //you can use it like this
+  val myClassInstance: MyClass
+  myClassInstance.newFunction()
+{% endhighlight %}
+
+Notice that inside <code>myNewFunction</code> body you can use <code>MyClass</code> properties and methods 
+without explicitly calling them on some instance: function has implicit parameter of <code>MyClass</code> type on which
+methods are called. Inside extension function <code>this</code> keyword can be omitted the same way as in regular methods.
+
+Let's now look closer at the type of <code>buildAction</code> parameter: it's a function that receives StringBuilder
+object as its parameter and does something with it. We can replace it with function with receiver: it means that buildAction
+is executed as if it's an extension function of StringBuilder.
+
+So our code now looks like this:
+{% highlight kotlin %}
+fun buildString(buildAction: StringBuilder.() -> Unit): String {
+  val stringBuilder = StringBuilder()
+  stringBuilder.buildAction()
+  return stringBuilder.toString()
+}
+  
+buildString {
+  append(1)
+  append(2)
+}
+{% endhighlight %}
+
+Btw, there is [<code>buildString</code>](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/build-string.html) function
+in Kotlin standard library.
+
+### After: great shiny DSL
+Now when we understand how we can build DSL in Kotlin, let's return to the educational plugin. 
+Because I don't want this post to be super long and boring, I'll consider a simpler course structure (note that in reality we have many more layers):
+
+{% highlight kotlin %}
+class Course {
+  val tasks: List<Task>
+}
+  
+class Task {
+  val files: List<EduFile>
+}
+{% endhighlight %} 
+
+First we need to understand how we want our DSL to look like. I'll show you an example showing the whole course hierarchy, but
+we will implement only one layer because everything else is very similar. 
+
+{% highlight kotlin %}
+course("courseName") {
+  task("taskName") {
+    file("name", "text with placeholder") {
+      placeholder("type here")
+    }
+  }
+}
+{% endhighlight %}
+
+
+So let's finally implement <code>course</code> function! First we need to figure out its type. What should it return?
+It should return new Course object. That's why we started the whole DSL story, right? What parameters should it take?
+As we can see in our usage example it has two parameters. The first one is simple: it's the name of a course. The second one
+is lambda with receiver that should allow us to add new tasks inside.
+
+To illustrate it with the code, that's the signature of <code>course</code> function:
+{% highlight kotlin %}
+fun course(name: String, buildCourse: Course.() -> Unit): Course
+{% endhighlight %}
+
+What should happen inside this function? Well, we should create new instance, call buildCourse on it and then return it:
+
+{% highlight kotlin %}
+fun course(name: String, buildCourse: Course.() -> Unit): Course {
+    val course = Course()
+    course.name = name
+    course.buildCourse()
+    return course
+}
+{% endhighlight %}
+
+It works just fine, but we also need to declare <code>task</code> function in a way that would allow us to have access to
+<code>Course</code> object inside it because we want to at least add new tasks to it.
+
+We could define <code>task</code> function as an extension function for <code>Course</code> class. However, I don't like this approach because
+ideally this function should be available only inside DSL. So what can we do to fix it?
+
+We can introduce a "helper" class that holds Course instance and serves as "receiver" in <code>course</code> function:
+ 
+{% highlight kotlin %}
+class CourseBuilder  {
+    val course = Course()
+    fun withName(name: String) {
+        course.name = name
+    }
+
+    fun task(name: String, buildTask: TaskBuilder.() -> Unit) {
+        val taskBuilder = TaskBuilder()
+        taskBuilder.withName(name)
+        taskBuilder.buildTask()
+        course.tasks.add(taskBuilder.task)
+    }
+}
+
+fun course(name: String = "Test Course", buildCourse: CourseBuilder.() -> Unit): Course {
+  val builder = CourseBuilder()
+  builder.withName(name)
+  builder.buildCourse()
+  return builder.course
+}
+{% endhighlight %}
+
+For other layers (files, placeholder etc) we do the same.
+
+For me at this point it already looks great, but I'd like to mention several improvements that we made:
+
+1. Introduced additional <code>courseWithFiles</code> function which generates files on file system for course and can be used
+on top level in DSL the same way as <code>course</code> function.
+So we can use DSL in two situations now: when we want to do some checks with files on file system and when we don't need physical
+files (in this case tests work much faster)
+2. Introduced several functions to create different types of tasks as we have many (theory tasks, for example) 
+3. Added support to mark answer placeholders directly in file text with tags:
+{% highlight kotlin %}
+course("Test Course") {
+  task("Test Task") {
+    file("name", "text with <p>placeholder</p>")
+  }
+}
+{% endhighlight %}
+
+Thank you for reading this story about how we introduced DSL in our tests!
+
+### Resources
+- An [article](https://kotlinlang.org/docs/reference/type-safe-builders.html) from official documentation which explains Kotlin features and syntax
+behind DSL
+- Good article in two parts with a simple example [Part 1](https://proandroiddev.com/writing-dsls-in-kotlin-part-1-7f5d2193f277)
+and [Part 2](https://proandroiddev.com/writing-dsls-in-kotlin-part-2-cd9dcd0c4715)
+- Builders lesson (I especially recommend Html Builders task) from
+Kotlin Koans course in EduTools plugin. Instructions on how to install and use plugin can be 
+found [here](https://kotlinlang.org/docs/tutorials/edu-tools-learner.html)
