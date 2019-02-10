@@ -1,0 +1,48 @@
+---
+layout: single
+title:  "Wake me up when this winter ends..."
+date:   2019-02-03
+categories: [gadgets, sleep]
+---
+It's been very depressing in Saint Petersburg because of the weather. And I just don't have enough energy to write a technical post this week.
+
+When everything you want to do is to crawl under the blankets with a cup of coffee and binge-watch some TV series (btw, I can totally
+recommend [Sex Education](https://www.imdb.com/title/tt7767422/) by Netflix, my latest favorite), it's very important to take
+care of yourself.
+
+
+Of course, you need to get enough sleep. 
+
+One of my NY resolutions was to track sleep. I tried going to bed early and waking up at 6 a.m. before. 
+Well, it doesn't work. Maybe I just don't have enough will power or my schedule is too insane :)
+On the other hand, I truly believe in the [Observer effect](https://en.wikipedia.org/wiki/Observer_effect_(physics)).
+Simply tracking things makes me more mindful and helps to understand why the situation is the way it is.
+
+To track my sleep I use [Pillow](https://itunes.apple.com/us/app/pillow-automatic-sleep-tracker/id878691772?mt=8) app with
+my Apple Watch. I really like the app. I tried it before when I just got Apple Watch, but since then they introduced
+automatic mode which is a total game changer. Although it works only with Apple Watch and you need to make
+a one-time payment, it is super accurate and convenient.
+
+Since Jan 1st I missed only one day, so now I have a pretty good picture of my sleeping patterns.
+The results are really surprising to me. It turns out I don't get enough sleep even on weekends.
+I was sure that I sleep at least 7-8 hours per day. In reality, I had been sleeping only for 6-7 hours even
+when I didn't have any plans for the next morning and didn't have an alarm.
+
+Here is a screenshot with data from a random night:
+<img src="../../../assets/images/sleep.jpg">
+
+Pretty good night comparing to others but still less than 7 hours...
+
+**What's next?**
+
+I've been looking into ways to improve the situation and actually I've been reading a book with advice on
+improving your sleep. I've been testing things and I'll get back with the results in several months.
+
+
+I want to end this post with a **gadget recommendation**. In October after a very long transatlantic flight, I bought an interesting device
+at the airport in Munich. I'm talking about [Sleepbuds](https://www.bose.com/en_us/products/wellness/noise_masking_sleepbuds/noise-masking-sleepbuds.html)
+by Bose. They are pricey, but if you can afford them and you don't think that sleeping in earplugs is weird, you should try them. They greatly affect my mood in a very positive way. I used to get really annoyed and sad
+whenever my neighbors were being loud. Now I just don't care at all, because I know that I'll take my Sleepbuds
+and happily go to the Dreamland.
+
+And now maybe it's time to get some sleep?
