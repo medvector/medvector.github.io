@@ -1,7 +1,7 @@
 ---
 layout: single
 title:  "Inspiring Talks Recommendations"
-date:   2019-02-17
+date:   2019-02-24
 categories: Recommendations
 ---
 The past week was really exhausting as we'd been working on a very exciting release.
